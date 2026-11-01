@@ -1,0 +1,59 @@
+name: GCSE LanPya Android Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Verify Android project files
+        run: |
+          test -f settings.gradle.kts
+          test -f build.gradle.kts
+          test -f app/build.gradle.kts
+          test -f app/src/main/AndroidManifest.xml
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Validate bundled learning content
+        run: |
+          if [ -f validate_content_v2_9.py ]; then
+            python3 validate_content_v2_9.py
+          else
+            echo "V2.9 content validator is missing"
+            exit 1
+          fi
+
+      - name: Build debug APK
+        run: gradle :app:assembleDebug --stacktrace --warning-mode all
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GCSE-LanPya-V2.9-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
