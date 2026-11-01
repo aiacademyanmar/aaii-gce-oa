@@ -1,0 +1,8 @@
+{
+  "version": "2.9",
+  "status": "starter_content_not_complete",
+  "examBoards": ["Cambridge IGCSE", "Oxford AQA", "Pearson Edexcel"],
+  "teachingLanguages": ["English", "Myanmar"],
+  "firstBoard": "Cambridge IGCSE",
+  "subjects": []
+}
